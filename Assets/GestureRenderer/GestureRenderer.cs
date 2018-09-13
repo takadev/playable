@@ -23,7 +23,7 @@ public class GestureRenderer : MonoBehaviour
         this.lr.endWidth = lineWidth;
         this.lr.positionCount = 0;
         this.lr.sortingLayerName = "ForeGround";
-        this.lr.sortingOrder = 2000;1
+        this.lr.sortingOrder = 2000;
     }
 
     void Update()
