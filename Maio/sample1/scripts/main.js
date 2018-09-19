@@ -1,45 +1,6 @@
 var canvas;
 var video;
 var ctx;
-var SCREEN_WIDTH = 800;
-var SCREEN_HEIGHT = 600;
-
-var mikanX = 0;
-var lastTimestamp = null;
-
-var Asset = {};
-Asset.images = {};
-
-Asset.assets = [
-    { type: 'image', name: 'back', src: 'images/back.png' },
-    { type: 'image', name: 'box', src: 'images/box.png' }
-];
-
-Asset.loadAssets = function(onComplete) {
-    var total = Asset.assets.length;
-    var loadCount = 0;
-    var onLoad = function() {
-        loadCount++;
-        if (loadCount >= total) {
-            onComplete();
-        }
-    };
-
-    Asset.assets.forEach(function(asset) {
-        switch (asset.type) {
-            case 'image':
-                Asset._loadImage(asset, onLoad);
-                break;
-        }
-    });
-};
-
-Asset._loadImage = function(asset, onLoad) {
-    var image = new Image();
-    image.src = asset.src;
-    image.onload = onLoad;
-    Asset.images[asset.name] = image;
-};
 
 Maio.onReady(function(isDefaultMute) {
     initVideo();
@@ -74,30 +35,60 @@ function removeVideo() {
 function initCanvas() {
     var body = document.querySelector('body');
     canvas = document.createElement('canvas');
+    canvas.setAttribute("id", "canvas");
     body.appendChild(canvas);
     ctx = canvas.getContext('2d');
-    canvas.width = SCREEN_WIDTH;
-    canvas.height = SCREEN_HEIGHT;
 
-    Asset.loadAssets(function() {
-        requestAnimationFrame(update);
-    });
-}
+    stage = new createjs.Stage("canvas");
 
-function update(timestamp) {
-    requestAnimationFrame(update);
-    render();
+    //window.addEventListener("resize", handleResize);
+    //handleResize();
 
-    var delta = 0;
-    if (lastTimestamp != null) {
-        delta = (timestamp - lastTimestamp) / 1000;
+    if (createjs.Touch.isSupported() == true) {
+        createjs.Touch.enable(stage)
     }
-    lastTimestamp = timestamp;
-    mikanX += 100 * delta;
+
+    var shape = new createjs.Shape();
+    stage.addChild(shape);
+    stage.addEventListener("stagemousedown", handleDown);
+
+      // マウスを押した時に実行される
+    function handleDown(event) {
+        shape.graphics.beginStroke("Black");
+        shape.graphics.setStrokeStyle(5);
+        shape.graphics.moveTo(event.stageX, event.stageY);
+        stage.addEventListener("stagemousemove", handleMove);
+        stage.addEventListener("stagemouseup", handleUp);
+    }
+
+    function handleMove(event) {
+        shape.graphics.lineTo(event.stageX, event.stageY);
+    }
+
+    function handleUp(event) {
+        shape.graphics.lineTo(event.stageX, event.stageY);
+        shape.graphics.endStroke();
+        stage.removeEventListener("stagemousemove", handleMove);
+        stage.removeEventListener("stagemouseup", handleUp);
+    }
+
+    createjs.Ticker.timingMode = createjs.Ticker.RAF;
+    createjs.Ticker.addEventListener("tick", onTick);
+    function onTick() {
+        stage.update();
+    }
 }
 
-function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(Asset.images['back'], 0, 0);
-    ctx.drawImage(Asset.images['box'], mikanX, 0);
+function judge() {
+
 }
+
+// リサイズ処理
+/*
+function handleResize(event) {
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    stage.canvas.width = w;
+    stage.canvas.height = h;
+    stage.update();
+}*/
