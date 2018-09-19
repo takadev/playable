@@ -40,14 +40,38 @@ function initCanvas() {
     ctx = canvas.getContext('2d');
 
     stage = new createjs.Stage("canvas");
-
-    //window.addEventListener("resize", handleResize);
-    //handleResize();
-
     if (createjs.Touch.isSupported() == true) {
         createjs.Touch.enable(stage)
     }
 
+    var image = new Image();
+    image.src = "images/bg.png";
+    image.onload = function() {
+        var bg = new createjs.Bitmap(image);
+        var aspectRatio = canvas.width / canvas.height;
+        var imageAspectRatio = image.width / image.height;
+        if (imageAspectRatio < aspectRatio) {
+            var scale = canvas.width / image.width;
+        } else {
+            var scale = canvas.height / image.height;
+        }
+        bg.scaleX = bg.scaleY = scale;
+        bg.x = (canvas.width - bg.scaleX * image.width) / 2;
+        bg.y = (canvas.height - bg.scaleY * image.height) / 2;
+
+        stage.addChild(bg);
+        var src = canvas.toDataURL('image/tmp.png');
+        canvas.style.backgroundImage = "url(" + src + ")";
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        initPainter()
+    }
+
+    //window.addEventListener("resize", handleResize);
+    //handleResize();
+
+}
+
+function initPainter() {
     var shape = new createjs.Shape();
     stage.addChild(shape);
     stage.addEventListener("stagemousedown", handleDown);
