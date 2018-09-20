@@ -1,6 +1,18 @@
 var canvas;
 var video;
 var ctx;
+var checkIndex = 1;
+var checkPoint = {
+    "x1":167, "y1":131,
+    "x2":184, "y2":118,
+    "x3":196, "y3":105,
+    "x4":206, "y4":92,
+    "x5":210, "y5":79,
+    "x6":205, "y6":66,
+    "x7":200, "y7":52,
+} 
+var len = Object.keys(checkPoint).length / 2;
+var tolerance = 10;
 
 Maio.onReady(function(isDefaultMute) {
     initVideo();
@@ -75,9 +87,11 @@ function initPainter() {
     var shape = new createjs.Shape();
     stage.addChild(shape);
     stage.addEventListener("stagemousedown", handleDown);
-
-      // マウスを押した時に実行される
+    
     function handleDown(event) {
+        if (checkPos(event.stageX, event.stageY) == false) {
+            return;
+        }
         shape.graphics.beginStroke("Black");
         shape.graphics.setStrokeStyle(5);
         shape.graphics.moveTo(event.stageX, event.stageY);
@@ -86,14 +100,17 @@ function initPainter() {
     }
 
     function handleMove(event) {
+        checkPos(event.stageX, event.stageY);
         shape.graphics.lineTo(event.stageX, event.stageY);
     }
 
     function handleUp(event) {
         shape.graphics.lineTo(event.stageX, event.stageY);
         shape.graphics.endStroke();
+        stage.removeEventListener("stagemousedown", handleDown);
         stage.removeEventListener("stagemousemove", handleMove);
         stage.removeEventListener("stagemouseup", handleUp);
+        judge(event.stageX, event.stageY);
     }
 
     createjs.Ticker.timingMode = createjs.Ticker.RAF;
@@ -101,10 +118,32 @@ function initPainter() {
     function onTick() {
         stage.update();
     }
-}
 
-function judge() {
+    function checkPos(x, y) {
+        x = parseInt(x);
+        y = parseInt(y);
 
+        if (checkIndex > len) {
+            checkIndex = len;
+        }
+
+        if (checkPoint["x" + checkIndex] - tolerance <= x && x <= checkPoint["x" + checkIndex] + tolerance && 
+            checkPoint["y" + checkIndex] - tolerance <= y && y <= checkPoint["y" + checkIndex] + tolerance) {
+            checkIndex++;
+            return true;
+        }
+        return false;
+    }
+
+    function judge(x, y) {
+        if (checkPos(x, y, len) && checkIndex > len) {
+            // GOAL
+            console.log("GOAL");
+        } else {
+            // FAULT
+            console.log("FAULT");
+        }
+    }
 }
 
 // リサイズ処理
