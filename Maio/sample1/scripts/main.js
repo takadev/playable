@@ -2,8 +2,6 @@ var canvas;
 var wrapper;
 var video;
 var ctx;
-
-
 var checkIndex = 1;
 var checkPoint = {
     "x1":167, "y1":131,
@@ -75,28 +73,8 @@ function initCanvas() {
         createjs.Touch.enable(stage)
     }
 
-    var image = new Image();
-    image.src = "images/bg.png";
-    image.onload = function() {
-        var bg = new createjs.Bitmap(image);
-        var aspectRatio = canvas.width / canvas.height;
-        var imageAspectRatio = image.width / image.height;
-        if (imageAspectRatio < aspectRatio) {
-            var scale = canvas.width / image.width;
-        } else {
-            var scale = canvas.height / image.height;
-        }
-        bg.scaleX = bg.scaleY = scale;
-        bg.x = (canvas.width - bg.scaleX * image.width) / 2;
-        bg.y = (canvas.height - bg.scaleY * image.height) / 2;
-
-        stage.addChild(bg);
-        var src = canvas.toDataURL('image/tmp.png');
-        canvas.style.backgroundImage = "url(" + src + ")";
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        initPainter();
-        initButton();
-    }
+    initPainter();
+    initButton();
 }
 
 function showCanvas() {
@@ -112,10 +90,18 @@ function initPainter() {
     stage.addChild(shape);
     stage.addEventListener("stagemousedown", handleDown);
     
+    createjs.Ticker.timingMode = createjs.Ticker.RAF;
+    createjs.Ticker.addEventListener("tick", onTick);
+    function onTick() {
+        stage.update();
+    }
+
     function handleDown(event) {
+        /*
         if (checkPos(event.stageX, event.stageY) == false) {
             return;
-        }
+        }*/
+
         shape.graphics.beginStroke("Black");
         shape.graphics.setStrokeStyle(5);
         shape.graphics.moveTo(event.stageX, event.stageY);
@@ -137,12 +123,6 @@ function initPainter() {
         judge(event.stageX, event.stageY);
     }
 
-    createjs.Ticker.timingMode = createjs.Ticker.RAF;
-    createjs.Ticker.addEventListener("tick", onTick);
-    function onTick() {
-        stage.update();
-    }
-
     function checkPos(x, y) {
         x = parseInt(x);
         y = parseInt(y);
@@ -162,13 +142,13 @@ function initPainter() {
     function judge(x, y) {
         if (checkPos(x, y, len) && checkIndex > len) {
             // GOAL
-            hideCanvas();
-            showVideo();
+            //hideCanvas();
+            //showVideo();
             console.log("GOAL");
         } else {
-            hideCanvas();
             // FAULT
-            showVideo();
+            //hideCanvas();
+            //showVideo();
             console.log("FAULT");
         }
     }
