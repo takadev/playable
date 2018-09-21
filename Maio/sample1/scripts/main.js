@@ -1,6 +1,9 @@
 var canvas;
+var wrapper;
 var video;
 var ctx;
+
+
 var checkIndex = 1;
 var checkPoint = {
     "x1":167, "y1":131,
@@ -21,13 +24,18 @@ Maio.onReady(function(isDefaultMute) {
 
 function initVideo() {
     video = document.querySelector('video');
+    video.style.width = window.parent.screen.width + "px";
+    var height = (window.parent.screen.width / 16 * 9);
+    video.style.height = height + "px";
+    var top = (window.parent.screen.height - height) / 2;
+    video.style.top = top + "px";
 
     video.addEventListener("loadeddata", function(){
         playVideo();
     }, false);
 
     video.addEventListener("ended", function(){
-        removeVideo();
+        hideVideo();
         initCanvas();
     }, false);
 }
@@ -40,15 +48,26 @@ function playVideo() {
     video.play();
 }
 
-function removeVideo() {
-    video.parentNode.removeChild(video);
+function showVideo() {
+    video.style.display = "";
+}
+
+function hideVideo() {
+    video.style.display = "none";
 }
 
 function initCanvas() {
-    var body = document.querySelector('body');
+    wrapper = document.querySelector('div#canvas_wrapper');
+    wrapper.style.width = wrapper.style.height = window.parent.screen.width + "px";
+    var top = (window.parent.screen.height - window.parent.screen.width) / 2;
+    wrapper.style.top = top + "px";
+
     canvas = document.createElement('canvas');
+    canvas.height = window.parent.screen.width;
+    canvas.width = window.parent.screen.width;
+
     canvas.setAttribute("id", "canvas");
-    body.appendChild(canvas);
+    wrapper.appendChild(canvas);
     ctx = canvas.getContext('2d');
 
     stage = new createjs.Stage("canvas");
@@ -75,12 +94,17 @@ function initCanvas() {
         var src = canvas.toDataURL('image/tmp.png');
         canvas.style.backgroundImage = "url(" + src + ")";
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        initPainter()
+        initPainter();
+        initButton();
     }
+}
 
-    //window.addEventListener("resize", handleResize);
-    //handleResize();
+function showCanvas() {
+    wrapper.style.display = "";
+}
 
+function hideCanvas() {
+    wrapper.style.display = "none";
 }
 
 function initPainter() {
@@ -138,20 +162,44 @@ function initPainter() {
     function judge(x, y) {
         if (checkPos(x, y, len) && checkIndex > len) {
             // GOAL
+            hideCanvas();
+            showVideo();
             console.log("GOAL");
         } else {
+            hideCanvas();
             // FAULT
+            showVideo();
             console.log("FAULT");
         }
     }
 }
 
-// リサイズ処理
-/*
-function handleResize(event) {
-    var w = window.innerWidth;
-    var h = window.innerHeight;
-    stage.canvas.width = w;
-    stage.canvas.height = h;
-    stage.update();
-}*/
+function initButton() {
+    var btnW = 50; // ボタンの横幅
+    var btnH = 10; // ボタンの高さ
+    var button = new createjs.Container();
+    button.x = 200;
+    button.y = 120;
+    stage.addChild(button);
+    
+    var bg = new createjs.Shape();
+    bg.graphics
+        .setStrokeStyle(1)
+        .beginStroke("#563d7c")
+        .beginFill("white")
+        .drawRoundRect(0, 0, btnW, btnH, 4);
+    button.addChild(bg);
+    // ラベルを作成
+    var label = new createjs.Text("Install", "10px sans-serif", "#563d7c");
+    label.x = btnW / 2;
+    label.y = btnH / 2;
+    label.textAlign = "center";
+    label.textBaseline = "middle";
+    button.addChild(label);
+
+    button.addEventListener("click", handleClick);
+    function handleClick(event) {
+        // クリックされた時の処理を記述
+        alert("クリックされました。");
+    }
+}
