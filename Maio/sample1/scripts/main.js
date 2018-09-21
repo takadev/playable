@@ -61,8 +61,7 @@ function initCanvas() {
     wrapper.style.top = top + "px";
 
     canvas = document.createElement('canvas');
-    canvas.height = window.parent.screen.width;
-    canvas.width = window.parent.screen.width;
+    canvas.height = canvas.width = window.parent.screen.width;
 
     canvas.setAttribute("id", "canvas");
     wrapper.appendChild(canvas);
