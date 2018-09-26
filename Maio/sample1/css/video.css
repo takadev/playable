@@ -1,3 +1,33 @@
+body {
+	background-color:black;
+}
+
+#container {
+
+}
+
+#header {
+
+}
+
+#main {
+
+}
+
+#footer {
+    position: absolute;
+    right: 0px;
+    left: 0px;
+    margin: auto;
+}
+
+video {
+    position: absolute;
+    right: 0px;
+    left: 0px;
+    margin: auto;
+}
+
 #canvas_wrapper {
     position: absolute;
     left: 0;
@@ -7,9 +37,29 @@
     background-size:contain;
 }
 
-video {
-    position: absolute;
-    right: 0px;
-    left: 0px;
-    margin: auto;
+a:link { color: #ffffff; }
+a:visited { color: #ffffff; }
+a:hover { color: #ffffff; }
+a:active { color: #ffffff; }
+
+a {
+    font-size: 1rem;
+    display: block;
+    padding: 12px 0;
+    text-align: center;
+    text-decoration: none;
 }
+
+.button {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 30%;
+    height: 50px;
+    border: 1px solid #ffffff;
+    background-color: #248;
+    border-radius: 5px;
+    text-align: center;
+}
+

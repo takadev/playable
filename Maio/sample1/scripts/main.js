@@ -12,11 +12,12 @@ var checkPointScale = {
     "x6":0.64453125, "y6":0.484375,
     "x7":0.6640625, "y7":0.4423828125,
     "x8":0.68359375, "y8":0.400390625,
-} 
+}
 
 var len = Object.keys(checkPointScale).length / 2;
 var toleranceX;
 var toleranceY;
+var footer;
 
 Maio.onReady(function(isDefaultMute) {
     initVideo();
@@ -26,13 +27,17 @@ Maio.onReady(function(isDefaultMute) {
 function initVideo() {
     video = document.querySelector('video');
     video.style.width = window.parent.screen.width + "px";
-    var height = (window.parent.screen.width / 16 * 9);
+    //var height = (window.parent.screen.width / 16 * 9); // TODO
+    var height = window.parent.screen.width;
     video.style.height = height + "px";
     var top = (window.parent.screen.height - height) / 2;
     video.style.top = top + "px";
 
     video.addEventListener("loadeddata", playVideo, false);
     video.addEventListener("ended", videoEndCallback, false);
+
+    footer = document.querySelector('div#footer');
+    footer.style.top = top + window.parent.screen.width + "px";
 }
 
 function videoEndCallback(){
@@ -74,9 +79,7 @@ function initCanvas() {
     if (createjs.Touch.isSupported() == true) {
         createjs.Touch.enable(stage)
     }
-
     initPainter();
-    //initButton();
 }
 
 function showCanvas() {
@@ -166,34 +169,3 @@ function initPainter() {
         showVideo();
     }
 }
-/*
-function initButton() {
-    var btnW = 50; // ボタンの横幅
-    var btnH = 10; // ボタンの高さ
-    var button = new createjs.Container();
-    button.x = 200;
-    button.y = 120;
-    stage.addChild(button);
-    
-    var bg = new createjs.Shape();
-    bg.graphics
-        .setStrokeStyle(1)
-        .beginStroke("#563d7c")
-        .beginFill("white")
-        .drawRoundRect(0, 0, btnW, btnH, 4);
-    button.addChild(bg);
-    // ラベルを作成
-    var label = new createjs.Text("Install", "10px sans-serif", "#563d7c");
-    label.x = btnW / 2;
-    label.y = btnH / 2;
-    label.textAlign = "center";
-    label.textBaseline = "middle";
-    button.addChild(label);
-
-    button.addEventListener("click", handleClick);
-    function handleClick(event) {
-        // クリックされた時の処理を記述
-        alert("クリックされました。");
-    }
-}
-*/
