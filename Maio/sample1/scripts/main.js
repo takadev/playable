@@ -3,17 +3,20 @@ var wrapper;
 var video;
 var ctx;
 var checkIndex = 1;
-var checkPoint = {
-    "x1":167, "y1":131,
-    "x2":184, "y2":118,
-    "x3":196, "y3":105,
-    "x4":206, "y4":92,
-    "x5":210, "y5":79,
-    "x6":205, "y6":66,
-    "x7":200, "y7":52,
+var checkPointScale = {
+    "x1":0.546875, "y1":0.6943359375,
+    "x2":0.56640625, "y2":0.65234375,
+    "x3":0.5859375, "y3":0.6103515625,
+    "x4":0.60546875, "y4":0.568359375,
+    "x5":0.625, "y5":0.5263671875,
+    "x6":0.64453125, "y6":0.484375,
+    "x7":0.6640625, "y7":0.4423828125,
+    "x8":0.68359375, "y8":0.400390625,
 } 
-var len = Object.keys(checkPoint).length / 2;
-var tolerance = 10;
+
+var len = Object.keys(checkPointScale).length / 2;
+var toleranceX;
+var toleranceY;
 
 Maio.onReady(function(isDefaultMute) {
     initVideo();
@@ -28,14 +31,14 @@ function initVideo() {
     var top = (window.parent.screen.height - height) / 2;
     video.style.top = top + "px";
 
-    video.addEventListener("loadeddata", function(){
-        playVideo();
-    }, false);
+    video.addEventListener("loadeddata", playVideo, false);
+    video.addEventListener("ended", videoEndCallback, false);
+}
 
-    video.addEventListener("ended", function(){
-        hideVideo();
-        initCanvas();
-    }, false);
+function videoEndCallback(){
+    hideVideo();
+    initCanvas();
+    showCanvas();
 }
 
 function loadVideo() {
@@ -62,18 +65,18 @@ function initCanvas() {
 
     canvas = document.createElement('canvas');
     canvas.height = canvas.width = window.parent.screen.width;
-
+    
     canvas.setAttribute("id", "canvas");
     wrapper.appendChild(canvas);
     ctx = canvas.getContext('2d');
-
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     stage = new createjs.Stage("canvas");
     if (createjs.Touch.isSupported() == true) {
         createjs.Touch.enable(stage)
     }
 
     initPainter();
-    initButton();
+    //initButton();
 }
 
 function showCanvas() {
@@ -85,6 +88,7 @@ function hideCanvas() {
 }
 
 function initPainter() {
+    checkIndex = 1;
     var shape = new createjs.Shape();
     stage.addChild(shape);
     stage.addEventListener("stagemousedown", handleDown);
@@ -96,11 +100,9 @@ function initPainter() {
     }
 
     function handleDown(event) {
-        /*
         if (checkPos(event.stageX, event.stageY) == false) {
             return;
-        }*/
-
+        }
         shape.graphics.beginStroke("Black");
         shape.graphics.setStrokeStyle(5);
         shape.graphics.moveTo(event.stageX, event.stageY);
@@ -129,9 +131,17 @@ function initPainter() {
         if (checkIndex > len) {
             checkIndex = len;
         }
+        toleranceX = toleranceY = 10;
+        if (checkIndex == 1 || checkIndex == len) {
+            toleranceX = toleranceY = 20;
+        }
+        var checkX = checkPointScale["x" + checkIndex] * canvas.width;
+        var checkY = checkPointScale["y" + checkIndex] * canvas.width;
+        checkX = parseInt(checkX);
+        checkY = parseInt(checkY);
 
-        if (checkPoint["x" + checkIndex] - tolerance <= x && x <= checkPoint["x" + checkIndex] + tolerance && 
-            checkPoint["y" + checkIndex] - tolerance <= y && y <= checkPoint["y" + checkIndex] + tolerance) {
+        if ((checkX - toleranceX) <= x && x <= (checkX + toleranceX) && 
+            (checkY - toleranceY) <= y && y <= (checkY + toleranceY)) {
             checkIndex++;
             return true;
         }
@@ -139,20 +149,24 @@ function initPainter() {
     }
 
     function judge(x, y) {
-        if (checkPos(x, y, len) && checkIndex > len) {
+        if (checkPos(x, y) && checkIndex >= len) {
             // GOAL
-            //hideCanvas();
-            //showVideo();
-            console.log("GOAL");
+            video.src = "video/test2.mp4";
+            video.removeEventListener("ended", videoEndCallback);
+            video.addEventListener("ended", function(){
+                Maio.closeAd(true);
+            }, false);
         } else {
             // FAULT
-            //hideCanvas();
-            //showVideo();
-            console.log("FAULT");
+            video.src = "video/test.mp4";
+            canvas.parentNode.removeChild(canvas);
         }
+        loadVideo();
+        hideCanvas();
+        showVideo();
     }
 }
-
+/*
 function initButton() {
     var btnW = 50; // ボタンの横幅
     var btnH = 10; // ボタンの高さ
@@ -182,3 +196,4 @@ function initButton() {
         alert("クリックされました。");
     }
 }
+*/
